@@ -33,8 +33,6 @@
             case ClownCarState.Unloaded:
                 break;
             case ClownCarState.Blinking:
-                // Unknown RNG call
-                Sim.RandDiscard();
                 if (BlinkTimer >= 5) {
                     // Blink interval RNG call
                     BlinkInterval = Sim.RandBlinkInterval();
@@ -50,6 +48,8 @@
                 if (BlinkTimer >= BlinkInterval) {
                     BlinkTimer = 1;
                     State = ClownCarState.Blinking;
+                    // Unknown RNG call
+                    Sim.RandDiscard();
                 } else BlinkTimer++;
                 break;
             case ClownCarState.Stunned:
