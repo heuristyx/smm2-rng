@@ -3,6 +3,7 @@
     static uint c;
 
     public static void Init() {
+        c = 0;
         x = ARNGPlus(0, ref c);
         y = ARNGPlus(x, ref c);
         z = ARNGPlus(y, ref c);
