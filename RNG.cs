@@ -2,12 +2,15 @@
     static uint x, y, z, w;
     static uint c;
 
+    public static List<uint> RNGStates = new();
+
     public static void Init() {
         c = 0;
         x = ARNGPlus(0, ref c);
         y = ARNGPlus(x, ref c);
         z = ARNGPlus(y, ref c);
         w = ARNGPlus(z, ref c);
+        RNGStates.Add(w);
         Program.Log($"{x}, {y}, {z}, {w}", true);
     }
 
@@ -28,6 +31,15 @@
         z = w;
         w = newW;
 
+        RNGStates.Add(w);
+
+        return w;
+    }
+
+    public static uint GetRandomNumber(int X) {
+        uint w;
+        if (X < RNGStates.Count) w = RNGStates[X];
+        else w = Xorshift();
         return w;
     }
 }
