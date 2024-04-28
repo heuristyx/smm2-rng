@@ -8,42 +8,44 @@
 
         RNG.Init();
 
-        // Rhymes with toad last 25
-        //int[] toMatch = new int[] {
-        //    1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1
-        //};
+        // Rhymes with toad -- this won't match because of the winged mushroom adding 3X at some point
+        int[] toMatch = new int[] {
+            0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0
+        };
 
         List<int[]> patterns = new();
 
         List<Tuple<int, int>> matches = new();
 
-        /// Change this to check initial X
-        for(int X = 1; X < 2; X++) {
-            /// Change 15 to number of clown cars
-            Simulation sim = new Simulation(X, 15) {
-                ExtraLoadFramePosition = 2,
-                //OnlyLogResult = true
+        /// Change this to sweep through initial X
+        for(int X = 870; X < 890; X++) {
+            int elfp = 2;
+            /// Second argument is number of clown cars
+            Simulation sim = new Simulation(X, 29) {
+                ExtraLoadFramePosition = elfp,
+                OnlyLogResult = true,
+                ExportToCSV = false
             };
             int[] result = sim.Start();
-            //bool isMatch = result.SequenceEqual(toMatch);
-            //Log($"{X}X, {2} ELFP {(isMatch ? "matched!" : "did not match")}");
-            //patterns.Add(result);
-            //if(isMatch) matches.Add(new Tuple<int,int>(X, 0));
+            bool isMatch = result.SequenceEqual(toMatch);
+            patterns.Add(result);
+            if(isMatch) matches.Add(new Tuple<int,int>(X, elfp));
         }
 
-        //using (StreamWriter sw = new StreamWriter(File.Create("patterns.txt"))) {
-        //    for (int i = 0; i < patterns.Count; i+=3) {
-        //        string s1 = patterns[i].Select((n) => n.ToString()).Aggregate((n1, n2) => n1 + n2);
-        //        sw.Write(s1 + "\n");
-        //        //string s2 = patterns[i+1].Select((n) => n.ToString()).Aggregate((n1, n2) => n1 + n2);
-        //        //string s3 = patterns[i+2].Select((n) => n.ToString()).Aggregate((n1, n2) => n1 + n2);
-        //        //sw.Write(s1 + " | " + s2 + " | " + s3 + "\n");
-        //    }
-        //}
+        // patterns.txt contains all clown car directions at each X swept through
+        using (StreamWriter sw = new StreamWriter(File.Create("patterns.txt"))) {
+            for(int i = 0; i < patterns.Count; i++) {
+                string s1 = patterns[i].Select((n) => n.ToString()).Aggregate((n1,n2) => n1 + n2);
+                sw.Write(s1 + "\n");
+                //string s2 = patterns[i+1].Select((n) => n.ToString()).Aggregate((n1, n2) => n1 + n2);
+                //string s3 = patterns[i+2].Select((n) => n.ToString()).Aggregate((n1, n2) => n1 + n2);
+                //sw.Write(s1 + " | " + s2 + " | " + s3 + "\n");
+            }
+        }
 
-        //Log("==========");
-        //Log("Successful matches:");
-        //foreach (var match in matches) Log($"{match.Item1}X, {match.Item2} ELFP");
+        Log("==========");
+        Log("Successful matches:");
+        foreach(var match in matches) Log($"{match.Item1}X, {match.Item2} ELFP");
 
         Console.Read();
     }

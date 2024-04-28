@@ -6,7 +6,7 @@
         Stunned
     }
 
-    const int STUN_DURATION = 121;
+    const int STUN_DURATION = 122;
     const int FRAMES_LOADED_LEFT = 1 + STUN_DURATION + 85; // or 84
     const int FRAMES_LOADED_RIGHT = 1 + STUN_DURATION + 72; // or 71
 
@@ -104,7 +104,7 @@
 
         // Rhymes with toad -- check if first three clown cars go in the right direction
         // (if they don't, calculations will fail because we assume deload times based on the correct direction)
-        //if (ID == 1 && !Sim.Directions.Take(3).SequenceEqual(new int[] { 0, 0, 1 })) Sim.Stop = true;
+        if (ID == 1 && !Sim.Directions.Take(3).SequenceEqual(new int[] { 0, 0, 1 })) Sim.Stop = true;
 
         // Cut simulation at the last clown car stun - everything after isn't relevant
         if (ID == Sim.Cars) Sim.Stop = true;

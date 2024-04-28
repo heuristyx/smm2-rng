@@ -8,6 +8,7 @@ public class Simulation {
     public int[] Directions;
 
     public bool OnlyLogResult { get; set; }
+    public bool ExportToCSV { get; set; }
     public int Cars { get; set; } = 1;
     public int ExtraLoadFramePosition { get; set; } = 0;
 
@@ -45,11 +46,11 @@ public class Simulation {
 
 
     public void GenerateLoadFrames() {
-        //LoadOnFrames.Add(1); // Clown cars 1, 2, 3 load immediately
-        LoadOnFrames.Add(89); // Clown car 4 loads on frame 89
+        LoadOnFrames.Add(1); // Clown cars 1, 2, 3 load immediately
+        LoadOnFrames.Add(90); // Clown car 4 loads on frame 90
 
-        int offset = 89;
-        for(int i = 0; i < Cars - 1; i++) {
+        int offset = 90;
+        for(int i = 0; i < Cars - 4; i++) {
             // Clown cars in the level are 37 1/3 frames of full speed running apart
             // So we offset by 37 and add 1 every 3 loads
             offset += 37;
@@ -70,7 +71,7 @@ public class Simulation {
         for (int i = 0; i < count; i++) {
             X++;
             uint w = RNG.GetRandomNumber(X);
-            AddCSVRow(X, w, reason, 9999999);
+            if (ExportToCSV) AddCSVRow(X, w, reason, 9999999);
         }
     }
 
@@ -79,7 +80,7 @@ public class Simulation {
         X++;
         uint w = RNG.GetRandomNumber(X);
         uint val = 10 + (uint)((float)w/UInt32.MaxValue * 170) >> 32;
-        AddCSVRow(X, w, $"({id}) Blink timer", val);
+        if (ExportToCSV) AddCSVRow(X, w, $"({id}) Blink timer", val);
         Program.Log($"New blink interval generated: {val}", true);
         return val;
     }
@@ -89,7 +90,7 @@ public class Simulation {
         X++;
         uint w = RNG.GetRandomNumber(X);
         uint val = w % 2;
-        AddCSVRow(X, w, $"({id}) Stun direction", val);
+        if (ExportToCSV) AddCSVRow(X, w, $"({id}) Stun direction", val);
         Program.Log($"New spike direction generated: {val}", true);
         return val;
     }
@@ -102,13 +103,13 @@ public class Simulation {
         if (!OnlyLogResult) Program.Log($"=== SIMULATION END ({Frame} frames) ===");
 
         // Abandon early if first 3 CC don't go RRL
-        //if (Stop && ClownCars.Count == 3) Program.Log($"First 3 clown cars didn't go the right direction ({ClownCars[0].StunDirection}, {ClownCars[1].StunDirection}, {ClownCars[2].StunDirection}). Abandoning {InitX}X");
-        //else { 
-        //    string leftright = Directions.Select((d) => d == 0 ? "R" : "L").Aggregate((d1, d2) => d1 + d2);
-        //    Program.Log($"Result (init X {InitX}, ELFP {ExtraLoadFramePosition}): clown cars move {leftright}");
-        //}
+        if (Stop && ClownCars.Count == 3) Program.Log($"First 3 clown cars didn't go the right direction ({ClownCars[0].StunDirection}, {ClownCars[1].StunDirection}, {ClownCars[2].StunDirection}). Abandoning {InitX}X");
+        else { 
+            string leftright = Directions.Select((d) => d == 0 ? "R" : "L").Aggregate((d1,d2) => d1 + d2);
+            Program.Log($"Result (init X {InitX}, ELFP {ExtraLoadFramePosition}): clown cars move {leftright}");
+        }
 
-        WriteToCSV();
+        if (ExportToCSV) WriteToCSV();
 
         return Directions;
     }
@@ -124,11 +125,11 @@ public class Simulation {
         // Clown car loading
         if (LoadOnFrames.Contains(Frame)) {
             LoadClownCar();
-            //if (Frame == 1) {
-            //    // Load clown cars 2 and 3 also on frame 1
-            //    LoadClownCar();
-            //    LoadClownCar();
-            //}
+            if (Frame == 1) {
+                // Load clown cars 2 and 3 also on frame 1
+                LoadClownCar();
+                LoadClownCar();
+            }
         }
 
         // No run RNG on frames 1 and 2 out the door
@@ -143,7 +144,7 @@ public class Simulation {
         ClownCar cc = new ClownCar(this);
         ClownCars.Add(cc);
         cc.ID = ClownCars.Count;
-        //if (cc.ID <= 3) cc.HasUniqueDeloadTime = true;
+        if (cc.ID <= 3) cc.HasUniqueDeloadTime = true;
         RandDiscard(3, $"({cc.ID}) Clown car load"); // Clown car 3X
         cc.BlinkInterval = RandBlinkInterval(cc.ID);
     }
